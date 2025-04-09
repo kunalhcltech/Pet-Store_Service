@@ -2,6 +2,7 @@ package com.hcltech.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,6 +14,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Category {
 
     @Id
@@ -25,6 +27,7 @@ public class Category {
     @CreationTimestamp
     @Column(insertable = true, updatable = false)
     private Date createdOn;
+
     @UpdateTimestamp
     @Column(insertable = false, updatable = true)
     private Date modifiedDate;

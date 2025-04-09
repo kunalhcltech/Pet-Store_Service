@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CategoryResponseDTO {
+
     private Long categoryId;
 
     private String categoryName;
