@@ -1,0 +1,31 @@
+package com.hcltech.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.util.Date;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Category {
+
+    @Id
+    @SequenceGenerator(name = "CATEGORY_SEQ",initialValue = 100,allocationSize = 1)
+    @GeneratedValue(generator ="CATEGORY_SEQ",strategy = GenerationType.SEQUENCE)
+    private Long categoryId;
+
+    private String categoryName;
+
+    @CreationTimestamp
+    @Column(insertable = true, updatable = false)
+    private Date createdOn;
+    @UpdateTimestamp
+    @Column(insertable = false, updatable = true)
+    private Date modifiedDate;
+}
