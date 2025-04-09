@@ -2,6 +2,7 @@ package com.hcltech.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,10 +16,12 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Pet {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "PET_SEQ",initialValue = 100,allocationSize = 1)
+    @GeneratedValue(generator ="PET_SEQ",strategy = GenerationType.SEQUENCE)
     private Long petId;
 
     private String petName;

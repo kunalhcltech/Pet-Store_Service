@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,5 +25,5 @@ public class PetRequestDTO {
 
   private Long categoryId;
 
-  private Long tagId;
+  private List<Long> tagId;
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -17,7 +18,8 @@ import java.util.Date;
 public class Order {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "ORDER_SEQ",initialValue = 100,allocationSize = 1)
+    @GeneratedValue(generator ="ORDER_SEQ",strategy = GenerationType.SEQUENCE)
     private Long purchaseId;
 
     @ManyToOne
@@ -27,7 +29,7 @@ public class Order {
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
-    private LocalDateTime purchaseDate;
+    private LocalDate purchaseDate;
 
     private Boolean returned = false;
 
