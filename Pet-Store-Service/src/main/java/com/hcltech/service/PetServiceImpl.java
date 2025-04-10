@@ -12,7 +12,9 @@ import com.hcltech.repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,6 +51,27 @@ public class PetServiceImpl implements PetService{
                 .tags(tagsList)
                 .build();
         return null;
+    }
+
+    @Override
+    public PetResponseDTO updatePetPriceById(Long id,Double price) {
+        Pet pet=petRepository.findById(id).orElseThrow(()->new RuntimeException("Pet not found"));
+        if(pet !=null){
+            pet.setPrice(price);
+        }
+        return mapToResponseDTO(petRepository.save(pet));
+    }
+
+    @Override
+    public List<PetResponseDTO> getPetByCategory(Long id) {
+        List<Pet> pets=petRepository.findAll().stream().filter(pet1 -> Objects.equals(pet1.getCategory().getCategoryId(), id)).toList();
+        List<PetResponseDTO> petsList=new ArrayList<>();
+        if(!pets.isEmpty()){
+            return pets.stream().map(this::mapToResponseDTO).toList();
+        }
+        else {
+            return new ArrayList<>();
+        }
     }
 
     @Override
