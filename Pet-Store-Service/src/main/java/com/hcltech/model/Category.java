@@ -27,6 +27,7 @@ public class Category {
     @CreationTimestamp
     @Column(insertable = true, updatable = false)
     private Date createdOn;
+
     @UpdateTimestamp
     @Column(insertable = false, updatable = true)
     private Date modifiedDate;

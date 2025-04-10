@@ -18,10 +18,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Pet {
-
     @Id
-    @SequenceGenerator(name = "PET_SEQ",initialValue = 100,allocationSize = 1)
-    @GeneratedValue(generator ="PET_SEQ",strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "CATEGORY_SEQ",initialValue = 100,allocationSize = 1)
+    @GeneratedValue(generator ="CATEGORY_SEQ",strategy = GenerationType.SEQUENCE)
     private Long petId;
 
     private String petName;
@@ -50,6 +49,7 @@ public class Pet {
     @CreationTimestamp
     @Column(insertable = true, updatable = false)
     private Date createdOn;
+
     @UpdateTimestamp
     @Column(insertable = false, updatable = true)
     private Date modifiedDate;

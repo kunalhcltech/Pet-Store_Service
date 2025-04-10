@@ -18,8 +18,8 @@ import java.util.Date;
 public class Tag {
 
     @Id
-    @SequenceGenerator(name = "TAG_SEQ",initialValue = 100,allocationSize = 1)
-    @GeneratedValue(generator ="TAG_SEQ",strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "CATEGORY_SEQ",initialValue = 100,allocationSize = 1)
+    @GeneratedValue(generator ="CATEGORY_SEQ",strategy = GenerationType.SEQUENCE)
     private Long tagId;
 
     private String tagName;
@@ -27,6 +27,7 @@ public class Tag {
     @CreationTimestamp
     @Column(insertable = true, updatable = false)
     private Date createdOn;
+
     @UpdateTimestamp
     @Column(insertable = false, updatable = true)
     private Date modifiedDate;

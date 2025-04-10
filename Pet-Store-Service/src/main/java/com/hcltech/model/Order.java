@@ -15,6 +15,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -25,7 +26,7 @@ public class Order {
     @ManyToOne
     private Customer customer;
 
-    @OneToOne
+    @OneToOne(targetEntity = Pet.class)
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
