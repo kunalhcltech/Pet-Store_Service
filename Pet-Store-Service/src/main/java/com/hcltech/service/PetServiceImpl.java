@@ -187,10 +187,16 @@ public class PetServiceImpl implements PetService {
         }
         CategoryResponseDTO categoryResponseDTO = categoryServiceImpl.
                 getCategoryById(petRequestDTO.getCategoryId());
+        if (categoryResponseDTO==null) {
+            throw new InvalidOperationExcepetion("Category not found.");
+        }
         Category categoryResult = Category.builder().categoryId(categoryResponseDTO.getCategoryId()).categoryName(categoryResponseDTO.getCategoryName()).build();
 
         if (petRequestDTO.getTagId() != null && !petRequestDTO.getTagId().isEmpty()) {
             Set<TagResponseDTO> tagResponseDTO = petRequestDTO.getTagId().stream().map(tagServiceImpl::getTagById).collect(Collectors.toSet());
+            if (tagResponseDTO.isEmpty()) {
+                throw new InvalidOperationExcepetion("Tag not found.");
+            }
             Set<Tag> tagsList = tagResponseDTO.stream()
                     .map(tagResponseDTO1 -> Tag.builder()
                             .tagId(tagResponseDTO1.getTagId())
