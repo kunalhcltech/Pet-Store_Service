@@ -47,7 +47,7 @@ public class CustomerController {
 
 
     @GetMapping("/get/{customerId}")
-    @Operation(summary = "Get Specific Customer" , description = "This method retrieves customer with reference of ID")
+    @Operation(summary = "Get Customer By ID" , description = "This method retrieves customer with reference of ID")
     public ResponseEntity<CustomerResponseDTO> getCustomerById(@PathVariable("customerId") Integer id)
     {
         CustomerResponseDTO customer = customerService.getCustomerById((long)(int)id);

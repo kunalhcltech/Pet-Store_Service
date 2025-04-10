@@ -31,7 +31,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrders());
     }
     @GetMapping("/getOrderById/{id}")
-    @Operation(summary ="Get Specific Order",description = "This method retrieves the order with reference of ID")
+    @Operation(summary ="Get Order by ID",description = "This method retrieves the order with reference of ID")
     public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable("id") Long id){
         return ResponseEntity.status(HttpStatus.OK).body(orderService.getOrderById(id));
     }
