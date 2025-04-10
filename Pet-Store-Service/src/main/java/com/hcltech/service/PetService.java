@@ -11,5 +11,9 @@ public interface PetService {
     List<PetResponseDTO> getAllPets();
     PetResponseDTO getPetById(Long id);
     PetResponseDTO updatePet(Long id, PetRequestDTO petRequestDTO);
-    void deletePet(Long id);
+    String deletePet(Long id);
+
+    PetResponseDTO updatePetPriceById(Long id,Double price);
+
+    List<PetResponseDTO> getPetByCategory(Long id);
 }

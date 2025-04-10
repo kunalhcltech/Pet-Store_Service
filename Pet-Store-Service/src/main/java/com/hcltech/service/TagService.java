@@ -9,5 +9,5 @@ public interface TagService {
     TagResponseDTO createTag(TagRequestDTO dto);
     List<TagResponseDTO> getAllTags();
     TagResponseDTO getTagById(Long id);
-    void deleteTag(Long id);
+    String deleteTag(Long id);
 }

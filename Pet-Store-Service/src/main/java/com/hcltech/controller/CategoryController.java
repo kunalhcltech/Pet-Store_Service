@@ -33,4 +33,5 @@ public class CategoryController {
     public ResponseEntity<String> deleteCategoryById(@PathVariable("categoryId")Long categoryId){
         return ResponseEntity.status(HttpStatus.OK).body(categoryServiceImpl.deleteCategory(categoryId));
     }
+
 }
