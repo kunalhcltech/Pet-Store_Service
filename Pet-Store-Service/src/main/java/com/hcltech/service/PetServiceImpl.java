@@ -77,17 +77,37 @@ public class PetServiceImpl implements PetService{
 
     @Override
     public PetResponseDTO getPetById(Long id) {
-        return null;
+        return mapToResponseDTO(petRepository.findById(id).orElseThrow(()->new RuntimeException("Pet not found")));
     }
 
     @Override
     public PetResponseDTO updatePet(Long id, PetRequestDTO petRequestDTO) {
-        return null;
+        CategoryResponseDTO categoryResponseDTO=categoryServiceImpl.
+                getCategoryById(petRequestDTO.getCategoryId());
+        Category categoryResult=Category.builder().categoryId(categoryResponseDTO.getCategoryId()).categoryName(categoryResponseDTO.getCategoryName()).build();
+        Set<TagResponseDTO> tagResponseDTO =petRequestDTO.getTagId().stream().map(tagServiceImpl::getTagById).collect(Collectors.toSet());
+        Set<Tag>tagsList=tagResponseDTO.stream()
+                .map(tagResponseDTO1 -> Tag.builder()
+                        .tagId(tagResponseDTO1.getTagId())
+                        .tagName(tagResponseDTO1.getTagName())
+                        .build())
+                .collect(Collectors.toSet());
+
+        Pet pet=petRepository.findById(id).orElseThrow(()->new RuntimeException("Pet not found"));
+        pet.setPetName(petRequestDTO.getPetName());
+        pet.setAge(petRequestDTO.getAge());
+        pet.setBreed(petRequestDTO.getBreed());
+        pet.setPrice(petRequestDTO.getPrice());
+        pet.setGender(petRequestDTO.getGender());
+        pet.setCategory(categoryResult);
+        pet.setTags(tagsList);
+        return mapToResponseDTO(petRepository.save(pet));
     }
 
     @Override
     public void deletePet(Long id) {
-
+        Pet pet=petRepository.findById(id).orElseThrow(()->new RuntimeException("Pet not found"));
+        petRepository.delete(pet);
     }
 
     public PetResponseDTO mapToResponseDTO(Pet pet){

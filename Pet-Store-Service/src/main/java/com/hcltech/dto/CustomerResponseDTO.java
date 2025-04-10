@@ -20,5 +20,5 @@ public class CustomerResponseDTO {
 
     private String customerPhone;
 
-    private List<OrderResponseDto> purchases;
+    private List<OrderResponseDTO> purchases;
 }

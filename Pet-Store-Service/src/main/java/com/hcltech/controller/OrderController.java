@@ -1,37 +1,39 @@
 package com.hcltech.controller;
 
+
 import com.hcltech.dto.OrderRequestDTO;
 import com.hcltech.dto.OrderResponseDTO;
-import com.hcltech.model.Order;
+import com.hcltech.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/shop/order")
+@RequestMapping("/shop")
 public class OrderController {
+    @Autowired
+    private OrderService orderService;
+    @PostMapping("/createOrder")
+    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO orderResponseDto){
+        OrderResponseDTO resultResponse = orderService.createOrder(orderResponseDto);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(resultResponse);
 
-    @PostMapping("/create")
-    public ResponseEntity<OrderResponseDTO> createOrder (@RequestBody OrderRequestDTO orderRequestDTO)
-    {
-        return null;
+
     }
-    @PutMapping("/return/{orderId}")
-    public ResponseEntity<String> returnOrder (@PathVariable("orderId") Integer orderId)
-    {
-        return null;
+    @GetMapping("/getAllOrders")
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrders(){
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrders());
+    }
+    @GetMapping("/getOrderById/{id}")
+    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.getOrderById(id));
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<List<OrderResponseDTO>> getAllOrders()
-    {
-        return null;
-    }
-
-    @GetMapping("/get/{orderId}")
-    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable("orderId") Integer orderid)
-    {
-        return null;
+    @PatchMapping("returned/{orderId}")
+    public ResponseEntity<OrderResponseDTO> returnOrder(@RequestParam Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.updateReturnedState(id));
     }
 }
