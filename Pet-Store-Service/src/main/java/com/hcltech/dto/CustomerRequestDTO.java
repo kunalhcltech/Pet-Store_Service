@@ -17,4 +17,6 @@ public class CustomerRequestDTO {
     private String customerEmail;
 
     private String customerPhone;
+
+    private String customerPassword;
 }
