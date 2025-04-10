@@ -15,7 +15,7 @@ import java.util.List;
 public class TagServiceImpl implements TagService {
 
     @Autowired
-    private TagRepository tagRepository;
+    public TagRepository tagRepository;
 
     @Override
     public TagResponseDTO createTag(TagRequestDTO tagRequestDTO) {
