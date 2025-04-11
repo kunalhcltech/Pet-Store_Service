@@ -36,6 +36,7 @@ public class Pet {
     private Boolean available = true;
 
     @ManyToOne
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
     @ManyToMany

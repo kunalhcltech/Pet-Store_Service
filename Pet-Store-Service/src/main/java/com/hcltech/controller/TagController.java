@@ -4,6 +4,8 @@ import com.hcltech.dto.TagRequestDTO;
 import com.hcltech.dto.TagResponseDTO;
 import com.hcltech.service.TagServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/tag-api")
+@SecurityRequirement(name = "bearerAuth")
 public class TagController {
 
     @Autowired

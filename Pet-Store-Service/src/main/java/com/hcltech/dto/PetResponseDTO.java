@@ -7,10 +7,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PetResponseDTO {
     private Long petId;
 

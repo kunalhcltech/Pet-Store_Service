@@ -9,5 +9,5 @@ public interface OrderService {
     OrderResponseDTO createOrder(OrderRequestDTO orderRequestDto);
     List<OrderResponseDTO> getAllOrders();
     OrderResponseDTO getOrderById (Long orderID);
-    OrderResponseDTO updateReturnedState (Long orderId);
+    String updateReturnedState (Long orderId);
 }

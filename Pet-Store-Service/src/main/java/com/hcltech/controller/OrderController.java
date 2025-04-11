@@ -5,6 +5,8 @@ import com.hcltech.dto.OrderRequestDTO;
 import com.hcltech.dto.OrderResponseDTO;
 import com.hcltech.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/shop/order")
+@SecurityRequirement(name = "bearerAuth")
 public class OrderController {
     @Autowired
     private OrderService orderService;
@@ -27,6 +30,7 @@ public class OrderController {
     }
     @GetMapping("/get")
     @Operation(summary ="Get Orders",description = "This method retrieves all the orders")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders(){
         return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrders());
     }
@@ -38,7 +42,7 @@ public class OrderController {
 
     @PatchMapping("return/{orderId}")
     @Operation(summary ="Return Order",description = "This method returns the order with reference of ID")
-    public ResponseEntity<OrderResponseDTO> returnOrder(@PathVariable("orderId") Long id){
+    public ResponseEntity<String> returnOrder(@PathVariable("orderId") Long id){
         return ResponseEntity.status(HttpStatus.OK).body(orderService.updateReturnedState(id));
     }
 }

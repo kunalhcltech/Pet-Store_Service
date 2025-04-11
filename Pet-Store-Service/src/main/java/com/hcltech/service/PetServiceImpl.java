@@ -1,30 +1,33 @@
 package com.hcltech.service;
 
-import com.hcltech.dto.CategoryResponseDTO;
-import com.hcltech.dto.PetRequestDTO;
-import com.hcltech.dto.PetResponseDTO;
-import com.hcltech.dto.TagResponseDTO;
-import com.hcltech.exceptions.InvalidOperationExcepetion;
-import com.hcltech.exceptions.PetNotFoundException;
-import com.hcltech.exceptions.TagNotFoundException;
-import com.hcltech.model.Category;
-import com.hcltech.model.Pet;
-import com.hcltech.model.Tag;
-import com.hcltech.repository.CategoryRepository;
-import com.hcltech.repository.PetRepository;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.hcltech.dto.CategoryResponseDTO;
+import com.hcltech.dto.PetRequestDTO;
+import com.hcltech.dto.PetResponseDTO;
+import com.hcltech.dto.TagResponseDTO;
+import com.hcltech.exceptions.InvalidOperationExcepetion;
+import com.hcltech.exceptions.PetNotFoundException;
+import com.hcltech.model.Category;
+import com.hcltech.model.Pet;
+import com.hcltech.model.Tag;
+import com.hcltech.repository.PetRepository;
+
 @Service
 public class PetServiceImpl implements PetService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PetServiceImpl.class);
+
     @Autowired
     private PetRepository petRepository;
     @Autowired
@@ -32,16 +35,19 @@ public class PetServiceImpl implements PetService {
     @Autowired
     private TagServiceImpl tagServiceImpl;
 
+    @Autowired
+    private ModelMapper mapper;
+
     @Override
-    public PetResponseDTO createPet( PetRequestDTO petRequestDTO) {
+    public PetResponseDTO createPet(PetRequestDTO petRequestDTO) {
+        logger.info("Entering createPet method");
         if (petRequestDTO == null) {
             throw new InvalidOperationExcepetion("Pet request cannot be null.");
         }
         if (petRequestDTO.getCategoryId() == null) {
             throw new InvalidOperationExcepetion("Category ID cannot be null.");
         }
-        CategoryResponseDTO categoryResponseDTO = categoryServiceImpl.
-                getCategoryById(petRequestDTO.getCategoryId());
+        CategoryResponseDTO categoryResponseDTO = categoryServiceImpl.getCategoryById(petRequestDTO.getCategoryId());
         Category categoryResult = Category.builder().categoryId(categoryResponseDTO.getCategoryId()).categoryName(categoryResponseDTO.getCategoryName()).build();
 
         if (petRequestDTO.getTagId() != null && !petRequestDTO.getTagId().isEmpty()) {
@@ -61,8 +67,10 @@ public class PetServiceImpl implements PetService {
                     .breed(petRequestDTO.getBreed())
                     .category(categoryResult)
                     .tags(tagsList)
-                    .available(true) // Assuming new pets are available by default
+                    .available(true)
                     .build();
+            System.out.println("*******************"+tagsList);
+            logger.info("Saving pet with tags");
             return mapToResponseDTO(petRepository.save(pet));
         } else {
             Pet pet = Pet.builder()
@@ -72,15 +80,17 @@ public class PetServiceImpl implements PetService {
                     .gender(petRequestDTO.getGender())
                     .breed(petRequestDTO.getBreed())
                     .category(categoryResult)
-                    .available(true) // Assuming new pets are available by default
+                    .available(true)
                     .build();
+            logger.info("Saving pet without tags");
             return mapToResponseDTO(petRepository.save(pet));
         }
     }
 
     @Override
     public List<PetResponseDTO> getAllPets() {
-        List<Pet> pets = petRepository.findAll();
+        logger.info("Fetching all available pets");
+        List<Pet> pets = petRepository.findByAvailableTrue();
         return pets.stream()
                 .map(this::mapToResponseDTO)
                 .toList();
@@ -88,14 +98,16 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public PetResponseDTO getPetById(Long id) {
+        logger.info("Fetching pet by ID: " + id);
         if (id == null || id <= 0) {
             throw new InvalidOperationExcepetion("Invalid pet ID provided.");
         }
-        return mapToResponseDTO(petRepository.findById(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id)));
+        return mapToResponseDTO(petRepository.findByPetIdAndAvailableTrue(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id)));
     }
 
     @Override
-    public PetResponseDTO updatePet(Long id,  PetRequestDTO petRequestDTO) {
+    public PetResponseDTO updatePet(Long id, PetRequestDTO petRequestDTO) {
+        logger.info("Updating pet with ID: " + id);
         if (id == null || id <= 0) {
             throw new InvalidOperationExcepetion("Invalid pet ID provided for update.");
         }
@@ -106,8 +118,7 @@ public class PetServiceImpl implements PetService {
             throw new InvalidOperationExcepetion("Category ID cannot be null for update.");
         }
 
-        CategoryResponseDTO categoryResponseDTO = categoryServiceImpl.
-                getCategoryById(petRequestDTO.getCategoryId());
+        CategoryResponseDTO categoryResponseDTO = categoryServiceImpl.getCategoryById(petRequestDTO.getCategoryId());
         Category categoryResult = Category.builder().categoryId(categoryResponseDTO.getCategoryId()).categoryName(categoryResponseDTO.getCategoryName()).build();
 
         Set<Tag> tagsList = null;
@@ -121,7 +132,7 @@ public class PetServiceImpl implements PetService {
                     .collect(Collectors.toSet());
         }
 
-        Pet pet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id));
+        Pet pet = petRepository.findByPetIdAndAvailableTrue(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id));
         pet.setPetName(petRequestDTO.getPetName());
         pet.setAge(petRequestDTO.getAge());
         pet.setBreed(petRequestDTO.getBreed());
@@ -131,42 +142,47 @@ public class PetServiceImpl implements PetService {
         if (tagsList != null) {
             pet.setTags(tagsList);
         }
+        logger.info("Pet updated successfully with ID: " + id);
         return mapToResponseDTO(petRepository.save(pet));
     }
 
     @Override
     public String deletePet(Long id) {
+        logger.info("Deleting pet with ID: " + id);
         if (id == null || id <= 0) {
             throw new InvalidOperationExcepetion("Invalid pet ID provided for deletion.");
         }
-        Pet pet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id));
+        Pet pet = petRepository.findByPetIdAndAvailableTrue(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id));
         petRepository.delete(pet);
         return "Pet with ID " + id + " has been removed.";
     }
 
     @Override
     public List<PetResponseDTO> getPetByCategory(Long id) {
+        logger.info("Fetching pets by category ID: " + id);
         if (id == null || id <= 0) {
             throw new InvalidOperationExcepetion("Invalid category ID provided.");
         }
-        List<Pet> pets = petRepository.findAll().stream()
+        List<Pet> pets = petRepository.findByAvailableTrue().stream()
                 .filter(pet1 -> pet1.getCategory() != null && Objects.equals(pet1.getCategory().getCategoryId(), id))
                 .toList();
         if (pets.isEmpty()) {
-            return new ArrayList<>(); // Return empty list if no pets found for the category
+            logger.warn("No pets found for category ID: " + id);
+            return new ArrayList<>();
         }
         return pets.stream().map(this::mapToResponseDTO).toList();
     }
 
     @Override
     public PetResponseDTO updatePetPriceById(Long id, Double price) {
+        logger.info("Updating price for pet ID: " + id);
         if (id == null || id <= 0) {
             throw new InvalidOperationExcepetion("Invalid pet ID provided for price update.");
         }
         if (price == null || price < 0) {
             throw new InvalidOperationExcepetion("Price cannot be null or negative.");
         }
-        Pet pet = petRepository.findById(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id));
+        Pet pet = petRepository.findByPetIdAndAvailableTrue(id).orElseThrow(() -> new PetNotFoundException("Pet not found with ID: " + id));
         pet.setPrice(price);
         return mapToResponseDTO(petRepository.save(pet));
     }
