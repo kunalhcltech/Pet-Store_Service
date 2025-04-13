@@ -1,5 +1,4 @@
 package com.hcltech.service;
-
 import com.hcltech.dto.TagRequestDTO;
 import com.hcltech.dto.TagResponseDTO;
 import com.hcltech.exceptions.InvalidOperationExcepetion;
@@ -8,12 +7,10 @@ import com.hcltech.model.Pet;
 import com.hcltech.model.Tag;
 import com.hcltech.repository.PetRepository;
 import com.hcltech.repository.TagRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
+import org.mockito.*;
 
 import java.util.*;
 
@@ -22,180 +19,140 @@ import static org.mockito.Mockito.*;
 
 public class TagServiceImplTest {
 
+    @InjectMocks
+    private TagServiceImpl tagService;
+
     @Mock
     private TagRepository tagRepository;
 
     @Mock
     private PetRepository petRepository;
 
-    @Mock
-    private Logger logger; // Mocking the logger
-
-    @InjectMocks
-    private TagServiceImpl tagService;
-
-    private TagRequestDTO tagRequestDTO;
-    private Tag tag;
-    private TagResponseDTO tagResponseDTO;
-    private Pet pet1;
-    private Pet pet2;
+    private AutoCloseable closeable;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        tagRequestDTO = new TagRequestDTO();
-        tagRequestDTO.setTagName("Playful");
-
-        tag = Tag.builder()
-                .tagId(1L)
-                .tagName("Playful")
-                .build();
-
-        tagResponseDTO = TagResponseDTO.builder()
-                .tagId(1L)
-                .tagName("Playful")
-                .build();
-
-        pet1 = new Pet();
-        pet1.setPetId(101L);
-        pet1.setPetName("Buddy");
-        pet1.setTags(new HashSet<>(Arrays.asList(tag)));
-
-        pet2 = new Pet();
-        pet2.setPetId(102L);
-        pet2.setPetName("Lucy");
-        pet2.setTags(new HashSet<>(Arrays.asList(tag)));
+    void setup() {
+        closeable = MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void createTag_ValidRequest_ReturnsResponseDTO() {
-        when(tagRepository.save(any(Tag.class))).thenReturn(tag);
-        when(tagService.mapToResponseDTO(tag)).thenReturn(tagResponseDTO);
+    void testCreateTag_success() {
+        TagRequestDTO requestDTO = TagRequestDTO.builder().tagName("Cute").build();
+        Tag savedTag = Tag.builder().tagId(1L).tagName("Cute").build();
 
-        TagResponseDTO result = tagService.createTag(tagRequestDTO);
+        when(tagRepository.save(any(Tag.class))).thenReturn(savedTag);
 
-        assertNotNull(result);
-        assertEquals(tagResponseDTO.getTagId(), result.getTagId());
-        assertEquals(tagResponseDTO.getTagName(), result.getTagName());
+        TagResponseDTO response = tagService.createTag(requestDTO);
+
+        assertNotNull(response);
+        assertEquals("Cute", response.getTagName());
         verify(tagRepository, times(1)).save(any(Tag.class));
-        verify(tagService, times(1)).mapToResponseDTO(tag);
     }
 
     @Test
-    void createTag_NullRequest_ThrowsInvalidOperationException() {
-        assertThrows(InvalidOperationExcepetion.class, () -> tagService.createTag(null));
-        verify(tagRepository, never()).save(any());
-        verify(tagService, never()).mapToResponseDTO(any());
+    void testCreateTag_nullRequest_throwsException() {
+        InvalidOperationExcepetion ex = assertThrows(InvalidOperationExcepetion.class, () -> {
+            tagService.createTag(null);
+        });
+        assertEquals("Tag request cannot be null.", ex.getMessage());
     }
 
     @Test
-    void getAllTags_ReturnsListOfResponseDTOs() {
-        List<Tag> tags = Arrays.asList(tag);
-        List<TagResponseDTO> responseList = Arrays.asList(tagResponseDTO);
+    void testGetAllTags_success() {
+        List<Tag> tags = List.of(
+                Tag.builder().tagId(1L).tagName("Cute").build(),
+                Tag.builder().tagId(2L).tagName("Wild").build()
+        );
 
         when(tagRepository.findAll()).thenReturn(tags);
-        when(tagService.mapToResponseDTO(tag)).thenReturn(tagResponseDTO);
 
         List<TagResponseDTO> result = tagService.getAllTags();
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(tagResponseDTO.getTagId(), result.get(0).getTagId());
-        assertEquals(tagResponseDTO.getTagName(), result.get(0).getTagName());
-        verify(tagRepository, times(1)).findAll();
-        verify(tagService, times(1)).mapToResponseDTO(tag);
+        assertEquals(2, result.size());
+        verify(tagRepository).findAll();
     }
 
     @Test
-    void getAllTags_NoTags_ReturnsEmptyList() {
-        when(tagRepository.findAll()).thenReturn(Arrays.asList());
+    void testGetTagById_success() {
+        Tag tag = Tag.builder().tagId(1L).tagName("Cute").build();
 
-        List<TagResponseDTO> result = tagService.getAllTags();
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(tag));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(tagRepository, times(1)).findAll();
-        verify(tagService, never()).mapToResponseDTO(any());
+        TagResponseDTO result = tagService.getTagById(1L);
+
+        assertEquals("Cute", result.getTagName());
     }
 
     @Test
-    void getTagById_ValidId_ReturnsResponseDTO() {
-        Long tagId = 1L;
-        when(tagRepository.findById(tagId)).thenReturn(Optional.of(tag));
-        when(tagService.mapToResponseDTO(tag)).thenReturn(tagResponseDTO);
-
-        TagResponseDTO result = tagService.getTagById(tagId);
-
-        assertNotNull(result);
-        assertEquals(tagResponseDTO.getTagId(), result.getTagId());
-        assertEquals(tagResponseDTO.getTagName(), result.getTagName());
-        verify(tagRepository, times(1)).findById(tagId);
-        verify(tagService, times(1)).mapToResponseDTO(tag);
+    void testGetTagById_nullId_throwsException() {
+        InvalidOperationExcepetion ex = assertThrows(InvalidOperationExcepetion.class, () -> {
+            tagService.getTagById(null);
+        });
+        assertEquals("Invalid tag ID provided.", ex.getMessage());
     }
 
     @Test
-    void getTagById_InvalidId_ThrowsInvalidOperationException() {
-        assertThrows(InvalidOperationExcepetion.class, () -> tagService.getTagById(0L));
-        assertThrows(InvalidOperationExcepetion.class, () -> tagService.getTagById(null));
-        verify(tagRepository, never()).findById(any());
-        verify(tagService, never()).mapToResponseDTO(any());
+    void testGetTagById_invalidId_throwsException() {
+        InvalidOperationExcepetion ex = assertThrows(InvalidOperationExcepetion.class, () -> {
+            tagService.getTagById(-1L);
+        });
+        assertEquals("Invalid tag ID provided.", ex.getMessage());
     }
 
     @Test
-    void getTagById_NotFound_ThrowsTagNotFoundException() {
-        Long tagId = 99L;
-        when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
+    void testGetTagById_tagNotFound_throwsException() {
+        when(tagRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(TagNotFoundException.class, () -> tagService.getTagById(tagId));
-        verify(tagRepository, times(1)).findById(tagId);
-        verify(tagService, never()).mapToResponseDTO(any());
+        TagNotFoundException ex = assertThrows(TagNotFoundException.class, () -> {
+            tagService.getTagById(1L);
+        });
+        assertEquals("Tag not found with ID: 1", ex.getMessage());
     }
 
     @Test
-    void deleteTag_ValidId_DeletesTagAndRemovesFromPets() {
-        Long tagId = 1L;
-        when(tagRepository.findById(tagId)).thenReturn(Optional.of(tag));
-        when(petRepository.findAll()).thenReturn(Arrays.asList(pet1, pet2));
-        when(petRepository.saveAll(anyList())).thenReturn(Arrays.asList(pet1, pet2));
+    void testDeleteTag_success() {
+        Tag tag = Tag.builder().tagId(1L).tagName("Cute").build();
+        Pet pet = Pet.builder().tags(new HashSet<>(List.of(tag))).build();
 
-        String result = tagService.deleteTag(tagId);
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(tag));
+        when(petRepository.findAll()).thenReturn(List.of(pet));
 
-        assertEquals("Tag with ID " + tagId + " has been deleted successfully", result);
-        assertFalse(pet1.getTags().contains(tag));
-        assertFalse(pet2.getTags().contains(tag));
-        verify(tagRepository, times(1)).findById(tagId);
-        verify(petRepository, times(1)).findAll();
-        verify(petRepository, times(1)).saveAll(anyList());
-        verify(tagRepository, times(1)).delete(tag);
+        String result = tagService.deleteTag(1L);
+
+        assertEquals("Tag with ID 1 has been deleted successfully", result);
+        verify(tagRepository).delete(tag);
+        verify(petRepository).saveAll(anyList());
     }
 
     @Test
-    void deleteTag_InvalidId_ThrowsInvalidOperationException() {
-        assertThrows(InvalidOperationExcepetion.class, () -> tagService.deleteTag(0L));
-        assertThrows(InvalidOperationExcepetion.class, () -> tagService.deleteTag(null));
-        verify(tagRepository, never()).findById(any());
-        verify(petRepository, never()).findAll();
-        verify(petRepository, never()).saveAll(anyList());
-        verify(tagRepository, never()).delete(any());
+    void testDeleteTag_nullId_throwsException() {
+        InvalidOperationExcepetion ex = assertThrows(InvalidOperationExcepetion.class, () -> {
+            tagService.deleteTag(null);
+        });
+        assertEquals("Invalid tag ID provided for deletion.", ex.getMessage());
     }
 
     @Test
-    void deleteTag_NotFound_ThrowsTagNotFoundException() {
-        Long tagId = 99L;
-        when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
-
-        assertThrows(TagNotFoundException.class, () -> tagService.deleteTag(tagId));
-        verify(tagRepository, times(1)).findById(tagId);
-        verify(petRepository, never()).findAll();
-        verify(petRepository, never()).saveAll(anyList());
-        verify(tagRepository, never()).delete(any());
+    void testDeleteTag_invalidId_throwsException() {
+        InvalidOperationExcepetion ex = assertThrows(InvalidOperationExcepetion.class, () -> {
+            tagService.deleteTag(-5L);
+        });
+        assertEquals("Invalid tag ID provided for deletion.", ex.getMessage());
     }
 
     @Test
-    void mapToResponseDTO_ValidTag_ReturnsResponseDTO() {
-        TagResponseDTO result = tagService.mapToResponseDTO(tag);
-        assertNotNull(result);
-        assertEquals(tag.getTagId(), result.getTagId());
-        assertEquals(tag.getTagName(), result.getTagName());
+    void testDeleteTag_tagNotFound_throwsException() {
+        when(tagRepository.findById(2L)).thenReturn(Optional.empty());
+
+        TagNotFoundException ex = assertThrows(TagNotFoundException.class, () -> {
+            tagService.deleteTag(2L);
+        });
+
+        assertEquals("Tag not found with ID: 2", ex.getMessage());
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
     }
 }

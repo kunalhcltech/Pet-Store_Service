@@ -88,7 +88,8 @@ public class CustomerController {
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
-    @GetMapping("/get/{customerId}")
+    @GetMapping("/get/orders/{customerId}")
+    @Operation(summary = "Get all order By customer ID" , description = "This method retrieves orders with reference of customerID")
     public ResponseEntity<List<OrderResponseDTO>> getAllOrdersByCustomerId(@PathVariable("customer Id") Long customerId)
     {
         List<OrderResponseDTO> orders = orderService.getAllOrdersByCustomerId(customerId);
