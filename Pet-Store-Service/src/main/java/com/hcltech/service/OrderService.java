@@ -10,4 +10,5 @@ public interface OrderService {
     List<OrderResponseDTO> getAllOrders();
     OrderResponseDTO getOrderById (Long orderID);
     String updateReturnedState (Long orderId);
+    List<OrderResponseDTO>  getAllOrdersByCustomerId(Long customerId);
 }

@@ -111,5 +111,13 @@ public class OrderServiceImpl implements OrderService {
 
         return "Order " + orderId + " returned Successfull!!!";
     }
+    @Override
+    public List<OrderResponseDTO>  getAllOrdersByCustomerId(Long customerId){
+
+        List<OrderResponseDTO> cust = (List<OrderResponseDTO>) orderRepository.findById(customerId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
+
+        return cust;
+    }
 
 }

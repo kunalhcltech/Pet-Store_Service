@@ -2,6 +2,7 @@ package com.hcltech.controller;
 
 import java.util.List;
 
+import com.hcltech.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hcltech.dto.CustomerRequestDTO;
-import com.hcltech.dto.CustomerResponseDTO;
-import com.hcltech.dto.JWTAuthRequest;
-import com.hcltech.dto.JWTAuthResponse;
 import com.hcltech.security.CustomerDetailsService;
 import com.hcltech.security.JWTHelper;
 import com.hcltech.service.CustomerService;
@@ -91,8 +88,8 @@ public class CustomerController {
         return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
-   /* @GetMapping("/get/{customerId}")
-    public ResponseEntity<List<OrderResponseDTO>> getAllOrdersByCustomerId(@PathVariable("customer Id") Long customerid)
+    @GetMapping("/get/{customerId}")
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrdersByCustomerId(@PathVariable("customer Id") Long customerId)
     {
         List<OrderResponseDTO> orders = orderService.getAllOrdersByCustomerId(customerId);
         if (orders.isEmpty())
@@ -100,5 +97,5 @@ public class CustomerController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Or HttpStatus.NOT_FOUND if you prefer
         }
         return new ResponseEntity<>(orders, HttpStatus.OK);
-    }*/
+    }
 }
