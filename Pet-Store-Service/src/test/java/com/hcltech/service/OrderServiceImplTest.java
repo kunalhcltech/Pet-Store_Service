@@ -165,8 +165,10 @@ public class OrderServiceImplTest {
 
     @Test
     public void testGetAllOrdersByCustomerId_OrderNotFound() {
-        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
+        when(orderRepository.findByCustomer_customerId(1L)).thenReturn(List.of());
 
         assertThrows(OrderNotFoundException.class, () -> orderService.getAllOrdersByCustomerId(1L));
     }
+
+
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -114,10 +115,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderResponseDTO>  getAllOrdersByCustomerId(Long customerId){
 
-        List<OrderResponseDTO> cust = (List<OrderResponseDTO>) orderRepository.findById(customerId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found"));
+        List<Order> byCustomerCustomerId = orderRepository.findByCustomer_customerId(customerId);
 
-        return cust;
+        List<OrderResponseDTO> collect = byCustomerCustomerId.stream().map(order -> mapper.map(order, OrderResponseDTO.class)).toList();
+        if(collect.isEmpty())throw  new OrderNotFoundException("Order Not Found");
+
+        return collect;
     }
 
 }

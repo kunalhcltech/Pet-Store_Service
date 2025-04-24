@@ -20,7 +20,7 @@ public class CategoryController {
     @Autowired
     private CategoryServiceImpl categoryServiceImpl;
     @PostMapping("/create")
-    @Operation(summary = "Category Created",description = "This method creates the category")
+    @Operation(summary = "Category Create",description = "This method creates the category")
     public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO categoryRequestDTO)
     {
         return ResponseEntity.status(HttpStatus.OK)

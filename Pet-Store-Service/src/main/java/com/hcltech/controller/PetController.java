@@ -33,12 +33,16 @@ public class PetController {
     {
         return ResponseEntity.status(HttpStatus.OK).body(petServiceImpl.updatePetPriceById(id,price));
     }
+
+
     @DeleteMapping("/delete/{petId}")
     @Operation(summary = "Delete Pet",description ="this method will delete the pet with reference of ID")
     public ResponseEntity<String> deletePetById(@PathVariable("petId") Long petId)
     {
         return ResponseEntity.status(HttpStatus.OK).body(petServiceImpl.deletePet(petId));
     }
+
+
     @GetMapping("/getByCategory/{category}")
     @Operation(summary = "Get Pet by Category",description = "This method will get all pets of category")
     public  ResponseEntity<List<PetResponseDTO>> getPetByCategory(@PathVariable("category") Long categoryId){
